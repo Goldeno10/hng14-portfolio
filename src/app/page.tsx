@@ -1,4 +1,36 @@
-const projects = [
+import {
+  ArrowRight,
+  BookOpen,
+  Briefcase,
+  GitBranch,
+  Globe,
+  GraduationCap,
+  Link as LinkIcon,
+  Mail,
+  Phone,
+  Sparkles,
+  User,
+  Wrench,
+} from "lucide-react";
+
+type ProofLink = {
+  label: string;
+  href?: string;
+  note?: string;
+  kind?: "github" | "live" | "doc" | "link";
+};
+
+type Project = {
+  id: string;
+  name: string;
+  description: string;
+  stack: string[];
+  built: string;
+  proof: ProofLink[];
+  skills: string[];
+};
+
+const projects: Project[] = [
   {
     id: "insighta",
     name: "Insighta Labs+ (HNG Backend Stages 0–4B)",
@@ -8,9 +40,10 @@ const projects = [
     built:
       "Designed and implemented the backend API surface (profiles CRUD, advanced filtering/sorting/pagination, rule-based search), auth/token handling, RBAC enforcement, caching + cache invalidation, and large CSV import behavior/response shape.",
     proof: [
-      { label: "Backend repo", note: "Local: /home/goldeno/Documents/Projects/insighta-backend" },
-      { label: "CLI repo", note: "Local: /home/goldeno/Documents/Projects/insighta-cli" },
-      { label: "Web repo", note: "Local: /home/goldeno/Documents/Projects/insighta-web" },
+      { label: "Backend repo", href: "https://github.com/Goldeno10/insighta-backend", kind: "github" },
+      { label: "CLI repo", href: "https://github.com/Goldeno10/insighta-cli", kind: "github" },
+      { label: "Web repo", href: "https://github.com/Goldeno10/insighta-web", kind: "github" },
+      { label: "Live web", href: "https://insighta-web-swart.vercel.app/", kind: "live" },
     ],
     skills: [
       "API design",
@@ -32,7 +65,7 @@ const projects = [
     built:
       "Implemented append-only write path, byte-accurate (offset,length) index, direct seek reads (no scans), and crash recovery (replay + truncate partial trailing line).",
     proof: [
-      { label: "README", note: "Local: /home/goldeno/Documents/Projects/hng14_be_stage_8/event_store/README.md" },
+      { label: "Repo", href: "https://github.com/Goldeno10/event_store", kind: "github" },
     ],
     skills: ["Durability reasoning", "File I/O (byte offsets)", "Crash recovery", "Testing"],
   },
@@ -46,8 +79,9 @@ const projects = [
       "Implemented sliding-window rate counting, per-post buffer, single flush-timer lifecycle, hysteresis to prevent threshold thrashing, and strict notifications.log format.",
     proof: [
       {
-        label: "README",
-        note: "Local: /home/goldeno/Documents/Projects/hng14_be_stage_8/notification_batcher/README.md",
+        label: "Repo",
+        href: "https://github.com/Goldeno10/notification_batcher",
+        kind: "github",
       },
     ],
     skills: ["Rate limiting (sliding window)", "Background jobs/timers", "Concurrency safety", "SQLite durability"],
@@ -60,7 +94,10 @@ const projects = [
     stack: ["Backend services", "File upload + processing", "Notifications (MVP)"],
     built:
       "Contributed as a backend engineer on the team MVP—working on backend endpoints, integrations, and reliability constraints needed for upload/processing and notification-style flows.",
-    proof: [{ label: "PRD", note: "Provided in task prompt (Clinsight MVP 1.0)" }],
+    proof: [
+      { label: "Live product", href: "https://clinsight.hng14.com/", kind: "live" },
+      { label: "PRD", note: "Provided in task prompt (Clinsight MVP 1.0)", kind: "doc" },
+    ],
     skills: ["Backend API design", "Asynchronous processing patterns", "Safety constraints (non-prescriptive output)"],
   },
 ];
@@ -95,16 +132,25 @@ function Pill({ children }: { children: React.ReactNode }) {
 
 function Card({
   title,
+  icon,
   children,
 }: {
   title: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <section className="rounded-2xl border border-[var(--card-border)] bg-[color:var(--card)] p-6 shadow-[0_0_0_1px_rgba(0,0,0,0.02)] backdrop-blur">
-      <h2 className="text-base font-semibold tracking-tight text-teal-50">
-        {title}
-      </h2>
+      <div className="flex items-center gap-2">
+        {icon ? (
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-teal-300/15 bg-black/10 text-teal-200/80">
+            {icon}
+          </span>
+        ) : null}
+        <h2 className="text-base font-semibold tracking-tight text-teal-50">
+          {title}
+        </h2>
+      </div>
       <div className="mt-4 text-sm leading-relaxed text-teal-50/80">
         {children}
       </div>
@@ -112,60 +158,242 @@ function Card({
   );
 }
 
+function ExternalLink({
+  href,
+  children,
+  className,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={
+        className ??
+        "text-teal-200/80 underline decoration-teal-300/25 underline-offset-4 hover:text-teal-200 hover:decoration-teal-200/60"
+      }
+    >
+      {children}
+    </a>
+  );
+}
+
+function MaybeLink({ value }: { value: string }) {
+  const isUrl = /^https?:\/\//i.test(value);
+  const isMail = /^mailto:/i.test(value);
+  const isTel = /^tel:/i.test(value);
+  if (isUrl || isMail || isTel) return <ExternalLink href={value}>{value}</ExternalLink>;
+  return <span className="text-teal-50/70">{value}</span>;
+}
+
+function ButtonLink({
+  href,
+  icon,
+  children,
+  variant = "primary",
+}: {
+  href: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  variant?: "primary" | "secondary";
+}) {
+  const cls =
+    variant === "primary"
+      ? "bg-teal-400/15 text-teal-50 ring-1 ring-teal-200/25 hover:bg-teal-400/20 hover:ring-teal-200/35"
+      : "bg-black/10 text-teal-50/85 ring-1 ring-teal-200/15 hover:bg-black/15 hover:ring-teal-200/25";
+
+  return (
+    <ExternalLink
+      href={href}
+      className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-medium transition ${cls}`}
+    >
+      {icon ? <span className="text-teal-200/80">{icon}</span> : null}
+      <span>{children}</span>
+      <ArrowRight size={16} className="ml-0.5 text-teal-200/60" aria-hidden />
+    </ExternalLink>
+  );
+}
+
+function ProofBadge({ item }: { item: ProofLink }) {
+  const icon =
+    item.kind === "github" ? (
+      <GitBranch size={16} aria-hidden />
+    ) : item.kind === "live" ? (
+      <Globe size={16} aria-hidden />
+    ) : item.kind === "doc" ? (
+      <BookOpen size={16} aria-hidden />
+    ) : (
+      <LinkIcon size={16} aria-hidden />
+    );
+
+  if (item.href) {
+    return (
+      <ExternalLink
+        href={item.href}
+        className="inline-flex items-center gap-2 rounded-full border border-teal-300/15 bg-black/10 px-3 py-1.5 text-xs font-medium text-teal-50/85 transition hover:border-teal-200/30 hover:bg-black/15"
+      >
+        <span className="text-teal-200/75">{icon}</span>
+        <span>{item.label}</span>
+      </ExternalLink>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full border border-teal-300/15 bg-black/10 px-3 py-1.5 text-xs font-medium text-teal-50/75">
+      <span className="text-teal-200/60">{icon}</span>
+      <span>{item.label}</span>
+    </span>
+  );
+}
+
 export default function Page() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-5 py-12 md:px-8 md:py-16">
-      <header className="flex flex-col gap-6">
-        <div className="flex flex-col gap-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-200/70">
-            HNG14 · Backend Engineer Portfolio
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-teal-50 md:text-4xl">
-            Backend work, clearly explained.
-          </h1>
-          <p className="max-w-2xl text-sm leading-relaxed text-teal-50/70">
-            This page summarizes the backend systems I built during the HNG
-            internship and what I can build under real constraints: API design,
-            auth, data modeling, performance work, background processing, and
-            operational correctness.
-          </p>
+    <main className="mx-auto w-full max-w-5xl px-5 py-10 md:px-8 md:py-14">
+      <header className="relative overflow-hidden rounded-3xl border border-[var(--card-border)] bg-[color:var(--card)] p-7 shadow-[0_0_0_1px_rgba(0,0,0,0.02)] backdrop-blur md:p-10">
+        <div className="pointer-events-none absolute inset-0 opacity-70">
+          <div className="absolute -left-20 -top-24 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl" />
+          <div className="absolute -right-20 -top-28 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="absolute -bottom-36 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-teal-300/10 blur-3xl" />
+        </div>
+
+        <div className="relative">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-teal-300/15 bg-black/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/70">
+                <Sparkles size={14} aria-hidden />
+                HNG14 · Backend portfolio
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-teal-300/10 bg-black/10 px-3 py-1.5 text-xs text-teal-50/70">
+                <span className="text-teal-200/60">Timezone</span> WAT (UTC+1)
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-tight text-teal-50 md:text-4xl">
+                Muhammad Baba Ibrahim
+              </h1>
+              <p className="text-sm text-teal-50/75 md:text-base">
+                Software Engineer · AI/ML Engineer · Backend-focused systems
+              </p>
+              <p className="max-w-3xl text-sm leading-relaxed text-teal-50/70">
+                I build backend systems with clear, testable behavior: secure auth,
+                deterministic request parsing, reliable data flows, and pragmatic
+                performance work. This page is designed to be reviewed in 3–5
+                minutes and leave no ambiguity about what I shipped.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3 pt-1">
+              <ButtonLink
+                href="mailto:ibrahimmuhammad271@gmail.com"
+                icon={<Mail size={16} aria-hidden />}
+              >
+                Email
+              </ButtonLink>
+              <ButtonLink
+                href="https://www.linkedin.com/in/muhammad-ib/"
+                variant="secondary"
+                icon={<LinkIcon size={16} aria-hidden />}
+              >
+                LinkedIn
+              </ButtonLink>
+              <ButtonLink
+                href="https://github.com/Goldeno10"
+                variant="secondary"
+                icon={<GitBranch size={16} aria-hidden />}
+              >
+                GitHub
+              </ButtonLink>
+              <ButtonLink
+                href="tel:+2347013013462"
+                variant="secondary"
+                icon={<Phone size={16} aria-hidden />}
+              >
+                Call
+              </ButtonLink>
+            </div>
+          </div>
         </div>
       </header>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card title="Profile">
-          <div className="space-y-3">
-            <div>
-              <p className="font-medium text-teal-50">Goldeno</p>
-              <p className="text-teal-50/70">
-                Backend Engineer · HNG14 Internship
-              </p>
+        <Card title="Profile" icon={<User size={18} aria-hidden />}>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-300/15 bg-black/10 text-sm font-semibold text-teal-50">
+                MBI
+              </div>
+              <div className="min-w-0">
+                <p className="text-base font-semibold leading-tight text-teal-50">
+                  Muhammad Baba Ibrahim
+                </p>
+                <p className="mt-1 text-sm text-teal-50/70">
+                  Software Engineer · AI/ML Engineer
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Pill>Backend</Pill>
+                  <Pill>APIs</Pill>
+                  <Pill>Auth</Pill>
+                  <Pill>Databases</Pill>
+                  <Pill>Performance</Pill>
+                </div>
+              </div>
             </div>
-            <div className="grid gap-2 text-sm">
-              <p>
-                <span className="text-teal-200/70">Timezone:</span>{" "}
-                <span className="text-teal-50/85">WAT (UTC+1)</span>
-              </p>
-              <p>
-                <span className="text-teal-200/70">GitHub:</span>{" "}
-                <span className="text-teal-50/85">@Goldeno10</span>
-              </p>
-              <p>
-                <span className="text-teal-200/70">Contact:</span>{" "}
-                <span className="text-teal-50/85">
-                  (add your email + LinkedIn here)
-                </span>
-              </p>
+
+            <div className="rounded-xl border border-teal-300/15 bg-black/10 p-4">
+              <div className="grid gap-2 text-sm">
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-teal-200/70">Timezone</span>
+                  <span className="text-teal-50/80">WAT (UTC+1)</span>
+                </p>
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-teal-200/70">Email</span>
+                  <ExternalLink href="mailto:ibrahimmuhammad271@gmail.com">
+                    ibrahimmuhammad271@gmail.com
+                  </ExternalLink>
+                </p>
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-teal-200/70">LinkedIn</span>
+                  <ExternalLink href="https://www.linkedin.com/in/muhammad-ib/">
+                    linkedin.com/in/muhammad-ib
+                  </ExternalLink>
+                </p>
+                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="text-teal-200/70">GitHub</span>
+                  <ExternalLink href="https://github.com/Goldeno10">
+                    github.com/Goldeno10
+                  </ExternalLink>
+                </p>
+              </div>
             </div>
-            <p className="text-teal-50/70">
-              I focus on building reliable APIs with clear behavior: strict input
-              validation, deterministic parsing, careful caching, and pragmatic
-              performance improvements.
-            </p>
+
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/70">
+                Highlights
+              </p>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-teal-50/75">
+                <li>
+                  Backend systems with clear contracts: validation, response
+                  shapes, and deterministic request parsing.
+                </li>
+                <li>
+                  Security + reliability: OAuth2 PKCE, RBAC enforcement, and
+                  crash-safe persistence patterns.
+                </li>
+                <li>
+                  Performance work that’s explainable: indexing, caching, and
+                  safe invalidation under load.
+                </li>
+              </ul>
+            </div>
           </div>
         </Card>
 
-        <Card title="Submission note (Stage 8b)">
+        <Card title="Submission note (Stage 8b)" icon={<BookOpen size={18} aria-hidden />}>
           <div className="space-y-3">
             <p>
               <span className="text-teal-200/70">Stack used:</span>{" "}
@@ -182,7 +410,8 @@ export default function Page() {
 
       <section className="mt-10">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="text-lg font-semibold tracking-tight text-teal-50">
+          <h2 className="flex items-center gap-2 text-lg font-semibold tracking-tight text-teal-50">
+            <Briefcase size={18} className="text-teal-200/75" aria-hidden />
             HNG Projects
           </h2>
           <p className="text-xs text-teal-200/60">
@@ -224,14 +453,23 @@ export default function Page() {
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/70">
                     Proof / notes
                   </p>
-                  <ul className="mt-2 space-y-1 text-sm text-teal-50/75">
-                    {p.proof.map((pr) => (
-                      <li key={pr.label}>
-                        <span className="text-teal-50/90">{pr.label}:</span>{" "}
-                        <span className="text-teal-50/70">{pr.note}</span>
-                      </li>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {p.proof.map((item) => (
+                      <ProofBadge key={item.label} item={item} />
                     ))}
-                  </ul>
+                  </div>
+                  {p.proof.some((x) => x.note) ? (
+                    <ul className="mt-3 space-y-1 text-sm text-teal-50/70">
+                      {p.proof
+                        .filter((x) => x.note)
+                        .map((x) => (
+                          <li key={`${p.id}-${x.label}-note`}>
+                            <span className="text-teal-50/85">{x.label}:</span>{" "}
+                            <span className="text-teal-50/65">{x.note}</span>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : null}
                 </div>
               </div>
             </section>
@@ -240,7 +478,7 @@ export default function Page() {
       </section>
 
       <section className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card title="Backend skills (with evidence)">
+        <Card title="Backend skills (with evidence)" icon={<Wrench size={18} aria-hidden />}>
           <div className="space-y-4">
             <p className="text-teal-50/70">
               Each skill below maps back to at least one project above.
@@ -292,7 +530,7 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card title={featured.name}>
+        <Card title={featured.name} icon={<Sparkles size={18} aria-hidden />}>
           <div className="space-y-4">
             <div>
               <p className="text-sm font-semibold text-teal-50">Problem</p>
@@ -342,7 +580,7 @@ export default function Page() {
       </section>
 
       <section className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card title="Learning reflection">
+        <Card title="Learning reflection" icon={<GraduationCap size={18} aria-hidden />}>
           <div className="space-y-3">
             <p className="text-teal-50/70">
               During HNG, I improved most in areas that show up under scale and
@@ -365,7 +603,7 @@ export default function Page() {
           </div>
         </Card>
 
-        <Card title="Contact">
+        <Card title="Contact" icon={<Mail size={18} aria-hidden />}>
           <div className="space-y-3">
             <p className="text-teal-50/70">
               If you want to discuss any of the projects above (especially the
@@ -373,26 +611,42 @@ export default function Page() {
             </p>
             <div className="rounded-xl border border-teal-300/15 bg-black/10 p-4">
               <p className="text-sm text-teal-50/80">
-                <span className="text-teal-200/70">Email:</span> add-email-here
+                <span className="text-teal-200/70">Email:</span>{" "}
+                <MaybeLink value="mailto:ibrahimmuhammad271@gmail.com" />
               </p>
               <p className="mt-2 text-sm text-teal-50/80">
                 <span className="text-teal-200/70">LinkedIn:</span>{" "}
-                add-link-here
+                <MaybeLink value="https://www.linkedin.com/in/muhammad-ib/" />
               </p>
               <p className="mt-2 text-sm text-teal-50/80">
-                <span className="text-teal-200/70">GitHub:</span> @Goldeno10
+                <span className="text-teal-200/70">GitHub:</span>{" "}
+                <MaybeLink value="https://github.com/Goldeno10" />
+              </p>
+              <p className="mt-2 text-sm text-teal-50/80">
+                <span className="text-teal-200/70">Phone:</span>{" "}
+                <MaybeLink value="tel:+2347013013462" />
               </p>
             </div>
-            <p className="text-xs text-teal-200/55">
-              Tip: update the placeholders above before submitting.
-            </p>
           </div>
         </Card>
       </section>
 
       <footer className="mt-12 border-t border-teal-300/10 pt-6 text-xs text-teal-200/55">
-        Built with Next.js + Tailwind CSS · Dark-teal theme · Designed for a 3–5
-        minute review.
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <p>
+            © {new Date().getFullYear()} Muhammad Baba Ibrahim · HNG14 Backend ·
+            Stage 8b
+          </p>
+          <p className="text-teal-200/45">
+            Built with Next.js + Tailwind CSS · Dark-teal theme
+          </p>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+          <ExternalLink href="mailto:ibrahimmuhammad271@gmail.com">Email</ExternalLink>
+          <ExternalLink href="https://www.linkedin.com/in/muhammad-ib/">LinkedIn</ExternalLink>
+          <ExternalLink href="https://github.com/Goldeno10">GitHub</ExternalLink>
+          <ExternalLink href="tel:+2347013013462">Phone</ExternalLink>
+        </div>
       </footer>
     </main>
   );
