@@ -288,8 +288,7 @@ export default function Page() {
               <p className="max-w-3xl text-sm leading-relaxed text-teal-50/70">
                 I build backend systems with clear, testable behavior: secure auth,
                 deterministic request parsing, reliable data flows, and pragmatic
-                performance work. This page is designed to be reviewed in 3–5
-                minutes and leave no ambiguity about what I shipped.
+                performance work.
               </p>
             </div>
 
