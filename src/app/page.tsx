@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
   Sparkles,
-  User,
   Wrench,
 } from "lucide-react";
 
@@ -274,7 +273,14 @@ export default function Page() {
 
             <div className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight text-teal-50 md:text-4xl">
-                Muhammad Baba Ibrahim
+                <span className="mr-2">Muhammad Baba Ibrahim</span>
+                <span className="align-middle text-sm font-medium text-teal-200/75 md:text-base">
+                  (
+                  <ExternalLink href="https://goldeno10.github.io/">
+                    goldeno10.github.io
+                  </ExternalLink>
+                  )
+                </span>
               </h1>
               <p className="text-sm text-teal-50/75 md:text-base">
                 Software Engineer · AI/ML Engineer · Backend-focused systems
@@ -316,97 +322,82 @@ export default function Page() {
                 Call
               </ButtonLink>
             </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-teal-300/15 bg-black/10 p-5">
+                <div className="flex items-start gap-4">
+                  <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-300/15 bg-black/10 text-sm font-semibold text-teal-50">
+                    MBI
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold leading-tight text-teal-50">
+                      Profile snapshot
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Pill>Backend</Pill>
+                      <Pill>APIs</Pill>
+                      <Pill>Auth</Pill>
+                      <Pill>Databases</Pill>
+                      <Pill>Performance</Pill>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-2 text-sm">
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-teal-200/70">Timezone</span>
+                    <span className="text-teal-50/80">WAT (UTC+1)</span>
+                  </p>
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-teal-200/70">Email</span>
+                    <ExternalLink href="mailto:ibrahimmuhammad271@gmail.com">
+                      ibrahimmuhammad271@gmail.com
+                    </ExternalLink>
+                  </p>
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-teal-200/70">LinkedIn</span>
+                    <ExternalLink href="https://www.linkedin.com/in/muhammad-ib/">
+                      linkedin.com/in/muhammad-ib
+                    </ExternalLink>
+                  </p>
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-teal-200/70">GitHub</span>
+                    <ExternalLink href="https://github.com/Goldeno10">
+                      github.com/Goldeno10
+                    </ExternalLink>
+                  </p>
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="text-teal-200/70">Portfolio</span>
+                    <ExternalLink href="https://goldeno10.github.io/">
+                      goldeno10.github.io
+                    </ExternalLink>
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-teal-300/15 bg-black/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/70">
+                  Highlights
+                </p>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-teal-50/75">
+                  <li>
+                    Backend systems with clear contracts: validation, response
+                    shapes, and deterministic request parsing.
+                  </li>
+                  <li>
+                    Security + reliability: OAuth2 PKCE, RBAC enforcement, and
+                    crash-safe persistence patterns.
+                  </li>
+                  <li>
+                    Performance work that’s explainable: indexing, caching, and
+                    safe invalidation under load.
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </header>
-
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
-        <Card title="Profile" icon={<User size={18} aria-hidden />}>
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-teal-300/15 bg-black/10 text-sm font-semibold text-teal-50">
-                MBI
-              </div>
-              <div className="min-w-0">
-                <p className="text-base font-semibold leading-tight text-teal-50">
-                  Muhammad Baba Ibrahim
-                </p>
-                <p className="mt-1 text-sm text-teal-50/70">
-                  Software Engineer · AI/ML Engineer
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Pill>Backend</Pill>
-                  <Pill>APIs</Pill>
-                  <Pill>Auth</Pill>
-                  <Pill>Databases</Pill>
-                  <Pill>Performance</Pill>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-teal-300/15 bg-black/10 p-4">
-              <div className="grid gap-2 text-sm">
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-teal-200/70">Timezone</span>
-                  <span className="text-teal-50/80">WAT (UTC+1)</span>
-                </p>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-teal-200/70">Email</span>
-                  <ExternalLink href="mailto:ibrahimmuhammad271@gmail.com">
-                    ibrahimmuhammad271@gmail.com
-                  </ExternalLink>
-                </p>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-teal-200/70">LinkedIn</span>
-                  <ExternalLink href="https://www.linkedin.com/in/muhammad-ib/">
-                    linkedin.com/in/muhammad-ib
-                  </ExternalLink>
-                </p>
-                <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-teal-200/70">GitHub</span>
-                  <ExternalLink href="https://github.com/Goldeno10">
-                    github.com/Goldeno10
-                  </ExternalLink>
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-teal-200/70">
-                Highlights
-              </p>
-              <ul className="list-disc space-y-1 pl-5 text-sm text-teal-50/75">
-                <li>
-                  Backend systems with clear contracts: validation, response
-                  shapes, and deterministic request parsing.
-                </li>
-                <li>
-                  Security + reliability: OAuth2 PKCE, RBAC enforcement, and
-                  crash-safe persistence patterns.
-                </li>
-                <li>
-                  Performance work that’s explainable: indexing, caching, and
-                  safe invalidation under load.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Submission note (Stage 8b)" icon={<BookOpen size={18} aria-hidden />}>
-          <div className="space-y-3">
-            <p>
-              <span className="text-teal-200/70">Stack used:</span>{" "}
-              <span className="text-teal-50/85">Next.js + Tailwind CSS</span>
-            </p>
-            <p className="text-teal-50/70">
-              Intent: a reviewer should understand what I built, what trade-offs
-              I made, and the backend skills I can apply in production—within a
-              3–5 minute skim.
-            </p>
-          </div>
-        </Card>
-      </div>
 
       <section className="mt-10">
         <div className="flex items-end justify-between gap-4">
