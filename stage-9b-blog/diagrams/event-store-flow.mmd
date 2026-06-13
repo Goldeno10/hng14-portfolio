@@ -1,22 +1,39 @@
+---
+config:
+  theme: default
+  flowchart:
+    nodeSpacing: 60
+    rankSpacing: 70
+    padding: 28
+  themeVariables:
+    fontSize: 22px
+    fontFamily: arial, sans-serif
+---
 flowchart TB
-    subgraph Write["Write path — POST /events"]
-        W1[Validate payload] --> W2[Stamp id + createdAt]
-        W2 --> W3[Serialize JSON line UTF-8]
-        W3 --> W4[Append to events.log O_APPEND]
-        W4 --> W5[fsync — durable write]
-        W5 --> W6[Update in-memory index id → offset, length]
+    subgraph WRITE["WRITE PATH — POST /events"]
+        direction LR
+        W1["Validate payload"] --> W2["Stamp id + createdAt"]
+        W2 --> W3["Serialize JSON line (UTF-8)"]
+        W3 --> W4["Append to events.log"]
+        W4 --> W5["fsync"]
+        W5 --> W6["Update index<br/>id → offset, length"]
     end
 
-    subgraph Read["Read path — GET /events/:id"]
-        R1[Index lookup by id] --> R2[seek offset]
-        R2 --> R3[read length bytes]
-        R3 --> R4[Parse JSON → return event]
+    subgraph READ["READ PATH — GET /events/:id"]
+        direction LR
+        R1["Index lookup"] --> R2["seek(offset)"]
+        R2 --> R3["read(length) bytes"]
+        R3 --> R4["Parse JSON → return event"]
     end
 
-    subgraph Recovery["Startup recovery"]
-        S1[Stream events.log line by line] --> S2[Rebuild index with byte offsets]
-        S2 --> S3{Last line has trailing newline?}
-        S3 -->|No| S4[Truncate partial line — crash mid-write]
-        S3 -->|Yes| S5[Log recovered count]
+    subgraph RECOVERY["RECOVERY — server startup"]
+        direction LR
+        S1["Replay events.log"] --> S2["Rebuild byte index"]
+        S2 --> S3{"Last line<br/>complete?"}
+        S3 -->|"No"| S4["Truncate<br/>partial line"]
+        S3 -->|"Yes"| S5["Log recovered count"]
         S4 --> S5
     end
+
+    WRITE ~~~ READ
+    READ ~~~ RECOVERY
