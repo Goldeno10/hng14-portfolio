@@ -1,0 +1,38 @@
+flowchart TB
+    subgraph Create["Guest session creation"]
+        C1[POST /api/v1/guest-session] --> C2[Hash client IP + device fingerprint]
+        C2 --> C3{Active session for device?}
+        C3 -->|Yes| C4[Reuse session + extend TTL]
+        C3 -->|No| C5[Create guest_sessions row chat_count=0 upload_count=0]
+        C5 --> C6[Return guest_session_id]
+        C4 --> C6
+    end
+
+    subgraph Upload["Guest upload — limit 1"]
+        U1[POST /api/v1/upload + X-Guest-Session-Id] --> U2[can_use UPLOAD upload_count less than 1]
+        U2 --> U3[Validate file type + size]
+        U3 --> U4[Create MedicalCase guest_session_id set]
+        U4 --> U5[Store file + enqueue OCR pipeline]
+        U5 --> U6[increment_upload — atomic counter]
+        U6 --> U7[Second upload → 403 Upload limit reached]
+    end
+
+    subgraph Chat["Guest chat — limit 3 patient messages"]
+        CH1[POST /cases/id/chat sender_type patient] --> CH2[can_use CHAT chat_count less than 3]
+        CH2 --> CH3[Save message]
+        CH3 --> CH4[increment_chat]
+        CH4 --> CH5[4th message → 403 message limit]
+    end
+
+    subgraph Migrate["Migration on signup"]
+        M1[verify-otp or Google OAuth callback] --> M2[SELECT guest row FOR UPDATE]
+        M2 --> M3{migrated_user_id set?}
+        M3 -->|Yes| M4[Idempotent — skip re-attach]
+        M3 -->|No| M5[Set case.user_id + clear guest_session_id]
+        M5 --> M6[Assign chat.user_id for orphan messages]
+        M6 --> M7[Revoke guest session]
+    end
+
+    Create --> Upload
+    Upload --> Chat
+    Chat --> Migrate

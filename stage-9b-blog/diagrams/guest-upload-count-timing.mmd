@@ -1,0 +1,22 @@
+sequenceDiagram
+    participant Client
+    participant API as POST /api/v1/upload
+    participant Manager as GuestSessionManager
+    participant DB as guest_sessions
+    participant Pipeline as OCR / AI pipeline
+
+    Client->>API: Upload file + X-Guest-Session-Id
+    API->>Manager: can_use(UPLOAD)
+    Manager->>DB: Check upload_count less than GUEST_UPLOAD_LIMIT
+    alt upload_count already 1
+        DB-->>Manager: limit reached
+        Manager-->>API: GuestLimitExceeded 403
+    else under limit
+        DB-->>Manager: OK
+        API->>API: Validate file, create MedicalCase
+        API->>Pipeline: Enqueue processing
+        API->>Manager: increment_upload (after success)
+        Manager->>DB: Atomic UPDATE upload_count + 1 WHERE upload_count less than 1
+        DB-->>Client: 201 case_id + lab_result
+        Note over Client,DB: Second upload on same session returns 403
+    end
